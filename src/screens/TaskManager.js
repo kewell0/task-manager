@@ -2,14 +2,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Text,
-  Image,
-  ScrollView,
   TouchableOpacity,
   Modal,
   TextInput,
   StyleSheet,
   FlatList,
   Alert,
+  Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -66,42 +65,41 @@ const TaskManager = ({ navigation }) => {
     AsyncStorage.setItem("todo", JSON.stringify(updatedTodo));
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await AsyncStorage.removeItem("todo");
-      return true;
-    } catch (exception) {
-      return false;
-    }
+  const handleDelete = async (item) => {
+    const response = await AsyncStorage.getItem("todo");
+    let todos = [];
+    if (response !== null) todos = JSON.parse(response);
+
+    const newTodoList = todo.filter((Item) => Item.id !== item.id);
+    setTodo(newTodoList);
+
+    await AsyncStorage.setItem("todo", JSON.stringify(newTodoList));
   };
 
   const displayTodo = (item) => (
-    <View
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        borderBottomColor: "grey",
-        borderBottomWidth: 0.6,
-      }}
-    >
+    <View style={styles.todos}>
       <TouchableOpacity
         style={{
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-
+          justifyContent: "space-between",
           paddingVertical: 16,
+          width: "60%",
         }}
         onPress={() =>
           Alert.alert(`${item.title}`, `${item.description}`, [
             {
-              text: item.completed ? "Mark InProgress" : "completed",
+              text: item.completed ? "Redo Task" : "completed",
               onPress: () => updateTodo(item),
             },
             {
-              text: "Ok",
+              text: "cancel",
               style: "cancel",
+            },
+            {
+              text: "delete",
+              onPress: () => handleDelete(item),
             },
           ])
         }
@@ -123,7 +121,8 @@ const TaskManager = ({ navigation }) => {
             style={{
               color: "#000",
               width: "90%",
-              fontSize: 16,
+              fontSize: 15,
+              fontWeight: 700,
               textDecorationLine: item.completed ? "line-through" : "none",
             }}
           >
@@ -133,8 +132,11 @@ const TaskManager = ({ navigation }) => {
       </TouchableOpacity>
 
       {/* delete button */}
-      <TouchableOpacity onPress={() => handleDelete(item)}>
-        <Text style={{ fontWeight: "900", color: "red" }}>X</Text>
+      <TouchableOpacity
+        onPress={() => handleDelete(item)}
+        style={styles.deleteBtnWrapper}
+      >
+        <Text style={styles.deleteIcon}>X</Text>
       </TouchableOpacity>
     </View>
   );
@@ -154,12 +156,12 @@ const TaskManager = ({ navigation }) => {
           <Text style={{ color: "#000", fontWeight: "bold", fontSize: 28 }}>
             Welcome 👋
           </Text>
-          <Text style={{ fontSize: 16 }}>
-            You have
+          <View style={styles.taskCounter}>
+            <Text style={{ marginRight: 8 }}> You have</Text>
             <Text style={{ fontWeight: "900" }}>
               {todo.length} {todo.length == 1 ? "task" : "tasks"}
             </Text>
-          </Text>
+          </View>
         </View>
 
         <TouchableOpacity onPress={() => navigation.popToTop()}>
@@ -174,7 +176,7 @@ const TaskManager = ({ navigation }) => {
       <FlatList
         data={todo}
         renderItem={({ item }) => (!item.completed ? displayTodo(item) : null)}
-        keyExtractor={todo.id}
+        keyExtractor={(item) => item.id}
       />
 
       {/* Completed Tasks */}
@@ -185,20 +187,13 @@ const TaskManager = ({ navigation }) => {
       <FlatList
         data={todo}
         renderItem={({ item }) => (item.completed ? displayTodo(item) : null)}
+        keyExtractor={(item) => item.id}
       />
 
       <View style={styles.addTaskBtn}>
         <TouchableOpacity
           onPress={() => setShowModal(true)}
-          style={{
-            backgroundColor: "lightblue",
-            borderRadius: 100,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            width: 60,
-          }}
+          style={styles.modalToggle}
         >
           <Text style={{ fontSize: 46 }}>+</Text>
         </TouchableOpacity>
@@ -260,15 +255,21 @@ const TaskManager = ({ navigation }) => {
             <TouchableOpacity
               onPress={addTodo}
               style={{
-                backgroundColor: "blue",
-                width: 100,
+                backgroundColor: "#0039a6",
+                width: "100%",
                 borderRadius: 10,
                 alignItems: "center",
                 padding: 10,
               }}
             >
-              <Text style={{ fontSize: 22, color: "#fff", fontWeight: "800" }}>
-                Add
+              <Text
+                style={{
+                  fontSize: 22,
+                  color: "#fff",
+                  fontWeight: "800",
+                }}
+              >
+                Submit
               </Text>
             </TouchableOpacity>
           </View>
@@ -285,8 +286,44 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  taskCounter: {
+    flexDirection: "row",
+  },
   addTaskBtn: {
     width: "100%",
     alignItems: "flex-end",
+  },
+  todos: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomColor: "grey",
+    borderBottomWidth: 0.6,
+  },
+  modalToggle: {
+    backgroundColor: "lightblue",
+    borderRadius: 100,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    marginBottom: 15,
+  },
+  deleteBtnWrapper: {
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    borderWidth: 1,
+    borderColor: "#c0c0c0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  deleteIcon: {
+    fontWeight: "900",
+    color: "red",
+    fontSize: 24,
   },
 });

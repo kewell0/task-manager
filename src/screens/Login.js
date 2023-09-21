@@ -16,7 +16,7 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    if (username === "admin" && password === "password") {
+    if (username === "admin" && password === "admin") {
       Alert.alert("Login Successful", "Welcome back!");
       navigation.navigate("TaskManager");
       setUsername("");
