@@ -8,7 +8,6 @@ import {
   StyleSheet,
   FlatList,
   Alert,
-  Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -164,8 +163,11 @@ const TaskManager = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity onPress={() => navigation.popToTop()}>
-          <Text>Log out</Text>
+        <TouchableOpacity
+          onPress={() => navigation.popToTop()}
+          style={styles.logoutBtn}
+        >
+          <Text style={{ fontWeight: "800" }}>Logout</Text>
         </TouchableOpacity>
       </View>
       {/* Todo Items */}
@@ -289,9 +291,11 @@ const styles = StyleSheet.create({
   taskCounter: {
     flexDirection: "row",
   },
-  addTaskBtn: {
-    width: "100%",
-    alignItems: "flex-end",
+  logoutBtn: {
+    borderWidth: 1,
+    borderColor: "#0039a6",
+    borderRadius: 8,
+    padding: 8,
   },
   todos: {
     display: "flex",
@@ -300,6 +304,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderBottomColor: "grey",
     borderBottomWidth: 0.6,
+  },
+  addTaskBtn: {
+    width: "100%",
+    alignItems: "flex-end",
   },
   modalToggle: {
     backgroundColor: "lightblue",
